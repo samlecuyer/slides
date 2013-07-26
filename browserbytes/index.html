@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>bytes in the browser</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>BYTES IN THE BROWSER</h1>
+					<h3>non-text data made simple</h3>
+					<p>
+						<small>by <a href="http://www.samlecuyer.com">sam l'ecuyer</a> / <a href="http://twitter.com/_qxb">@_qxb</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h2>About me</h2>
+					<ul>
+						<li>from Chicago</li>
+						<li>love clean code, single-malt &amp; homebrewing</li>
+						<li>wants the web to win</li>
+					</ul>
+
+					<aside class="notes">
+						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
+					</aside>
+				</section>
+
+				<!-- Example of nested vertical slides -->
+				<section>
+					<section>
+						<h2>Some Background</h2>
+						<p>
+							My first experience trying to handle binary data in Javascript was in 2009, loading on-the-fly PDFs to a fully AJAX web application.
+						</p>
+					</section>
+					<section>
+						<h2>In January 2009:</h2>
+						<ul>
+							<li>IE 8 had not been released</li>
+							<li>FF 3.0 was a month old</li>
+							<li>Chrome was barely an infant</li>
+						</ul>
+					</section>
+					<section>
+						<h1>it was a dark time</h1>
+					</section>
+				</section>
+
+				<section>
+					<h2>What we were doing</h2>
+					<ul>
+						<li>Client-side requests (a form)</li>
+						<li>Server-side generation of PDF</li>
+						<li>Client-side use of PDF</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Problems</h2>
+					<ul>
+						<li>Server-side was slow (too many records)</li>
+						<li>No way to gracefully handle the files</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>What we did</h2>
+					<ul>
+						<li>Weep</li>
+						<li>Curse bitterly</li>
+						<li>Drink</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>What we needed</h2>
+					<p>We needed to be able to submit the form and get a file back</p>
+					<pre><code data-trim>
+$.post('/pdf/generation/service', 
+	$('#the-form').serialize(), function(thePDF) {
+	// thePDF is an application/octet object
+	// and in 2009, browsers didn't know what that was
+	// so we got a string
+	// "%PDF-1.3%ƒÂÚÂÎßÛ†–ƒ∆...%EOF"
+});
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>Help is on the way</h2>
+					<p>
+						<i>17 November 2009, Arun Ranganathan's File API becomes a W3C working draft</i> 
+					</p>
+					<p>
+						It's not great, but it's a great start.
+					</p>
+				</section>
+
+				<section>
+					<h2>Today's API</h2>
+					<p>
+						Today's File API has three components it corrects:
+					</p>
+					<ol>
+						<li>local filesystem access</li>
+						<li>network transmission</li>
+						<li>new binary datatypes</li>
+					</ol>
+				</section>
+
+				<section>
+					<section>
+						<h2>Local Access</h2>
+						<ul>
+							<li><code>File()</code></li>
+							<li><code>FileReader()</code></li>
+						</ul><br/>
+						<p>The FS is safeguarded by using <code>&lt;input&gt;</code>s to sandbox input.</p>
+						<p>Name, last modified, contents are accessible as read only.</p>
+					</section>
+					<section>
+						<p><code>File()</code></p>
+						<p>This allows you to grab the metadata from a file input in a form.</p>
+						<p>If your form is for uploading screenshots, you can tell your user this is a file from last week, and probably not the one they just took. (Think JIRA)</p>
+					</section>
+					<section>
+						<p><code>FileReader()</code></p>
+						<p>Asynchronously read data into several container types:</p>
+						<ul>
+							<li><code>ArrayBuffer</code></li>
+							<li><code>text</code></li>
+							<li><code>DataURL</code></li>
+						</ul>
+						<p>Virtually identical to XHR API</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Network Transmission</h2>
+					<p>New <code>contentTypes</code> are added to XHR:</p>
+					<ul>
+						<li><code>'blob'</code></li>
+						<li><code>'arraybuffer'</code></li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>New Data Types</h2>
+						<ul>
+							<li><code>Blob</code></li>
+							<li><code>ArrayBuffer</code></li>
+						</ul>
+					</section>
+					<section>
+						<p><code>Blob()</code></p>
+						<p>This is opaque data.  This is great if you don't want to read the data, you just want to pass it around.</p>
+					</section>
+					<section>
+						<p><code>ArrayBuffer()</code></p>
+						<p>ArrayBuffers are awesome:</p>
+						<ul>
+							<li>They can be sliced</li>
+							<li>They can be typed</li>
+						</ul>
+					</section>
+					<section>
+						<h2>ArrayBuffer types</h2>
+						<ul>
+							<li><code>Int8Array</code></li>
+							<li><code>Uint8Array</code></li>
+							<li><code>Int16Array</code></li>
+							<li><code>Uint16Array</code></li>
+							<li><code>Int32Array</code></li>
+							<li><code>Uint32Array</code></li>
+							<li><code>Float32Array</code></li>
+							<li><code>Float64Array</code></li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Implementing a StreamReader</h2>
+						<h3>It's a snap</h3>
+						<pre><code data-trim>
+function StreamReader(arrayBuffer, offset) {
+	var i = offset || 0;
+	var view = new window.DataView(arrayBuffer, i);
+	this.getInt8 = function() { 
+		return view.getInt8(i++); };
+	this.getUint8 = function() { 
+		return view.getUint8(i++); };
+	this.getInt16 = function() { 
+		return i+= 2,view.getInt16(i-2); };
+	this.getUint16 = function() { 
+		return i+= 2,view.getUint16(i-2); };
+	this.getInt32 = function() { 
+		return i += 4, view.getInt32(i-4); };
+	this.getUint32 = function() { 
+		return i += 4, view.getUint32(i-4); };
+	this.getFloat32 = function() { 
+		return i += 4, view.getFloat32(i-4); };
+	this.backup = function(bytes) { i -= bytes; };
+	this.offset = function() { return i; };
+	this.goto = function(l) { i = Math.max(l,0); };
+
+	this.readString = function(count) {
+		var str = this.getStringAt(i, count);
+		i += count;
+		return str;
+	};
+	this.getStringAt = function(start, len) {
+		var str = '';
+		for (var k = 0; k < len; k++) {
+		str += String.fromCharCode(view.getInt8(start+k));
+		}
+		return str;
+	};
+	this.get32Fixed = function() {
+		var ret = 0.0;
+		ret = this.getInt16();
+		ret += (this.getInt16()/65536);
+		return ret;
+	};
+	this.getUint8Array = function(len) { 
+		var ret = [];
+		for (var i = 0; i < len; i++) {
+			ret[i] = this.getUint8();
+		} 
+		return ret;
+	};
+	this.getUint16Array = function(len) { 
+		var ret = [];
+		for (var i = 0; i < len; i++) {
+			ret[i] = this.getUint16();
+		} 
+		return ret;
+	};
+}
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<h1>Solving our PDF problems</h1>
+				</section>
+
+				<section>
+					<h2>Pretty simple</h2>
+					<pre><code data-trim>
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/pdf/generating/service', true);
+xhr.responseType = 'blob';
+
+xhr.onload = function(e) {
+  if (this.status == 200) {
+    var pdf = new Blob([this.response], {type: 'application/pdf'});
+    var pdfUrl = createObjectURL(pdf);
+    var a = document.getElementById('notification-anchor');
+    a.href = pdfUrl; 
+  }
+};
+
+xhr.send();
+					</code></pre>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						```
+						<style>
+							#notification-anchor:after {
+								content: 'your download will be ready soon';
+							}
+							#notification-anchor[href]:after {
+								content: 'your download is ready now';
+							}
+						</style>
+						<a id="notification-anchor"/>
+						```
+						would translate to 
+						```
+						<a id="notification-anchor"
+							href="blob:550e8400-e29b-41d4-a716-446655440000#aboutABBA"/>
+						```
+					</script>
+				</section>
+
+				<section>
+					<h2>Other use cases</h2>
+					<ul>
+						<li>Editing a photogallery, upload in the background</li>
+						<li><a href="http://fontificate.samlecuyer.com">Analyzing data in the browser</a></li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>THE END</h1>
+				</section>
+
+				<section>
+					<h2>Sources</h2>
+					<ul>
+						<li><a href="http://www.w3.org/TR/FileAPI/">W3C File API</a></li>
+						<li><a href="http://www.khronos.org/registry/typedarray/specs/latest/">Typed Arrays spec</a></li>
+						<li><a href="http://www.html5rocks.com/en/tutorials/file/xhr2/">XHR2 Examples</a></li>
+						<li><a href="https://github.com/samlecuyer/fontificate">fontificate.js source</a></li>
+						<li><a href="http://twitter.com/_qxb">Follow me on Twitter</a></li>
+					</ul>
+				</section>
+
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
